@@ -1,9 +1,6 @@
 using Consumidor;
-using Consumidor.Data.Contexto;
 using Consumidor.Eventos;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using MassTransit.RabbitMqTransport;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
