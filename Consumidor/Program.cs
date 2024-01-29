@@ -1,7 +1,8 @@
 using Consumidor;
+using Consumidor.Data.Contexto;
 using Consumidor.Eventos;
 using MassTransit;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -14,6 +15,14 @@ IHost host = Host.CreateDefaultBuilder(args)
         var Senha = configuration.GetSection("MassTransit")["Senha"] ?? string.Empty;
 
         services.AddHostedService<Worker>();
+
+        var connectionString = configuration.GetSection("ConnectionStrings")["Connection"] ?? string.Empty;
+
+        services.AddDbContext<Context>
+        (opts =>
+        {
+            opts.UseLazyLoadingProxies().UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+        });
 
         services.AddMassTransit((x =>
         {
@@ -36,6 +45,12 @@ IHost host = Host.CreateDefaultBuilder(args)
             x.AddConsumer<UsuarioCriandoConsumidor>();
         }));
     })
-    .Build();
+.Build();
 
 await host.RunAsync();
+
+using (var scope = host.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<Context>();
+    dbContext.Database.Migrate();
+}
