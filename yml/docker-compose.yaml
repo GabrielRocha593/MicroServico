@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  produtor:
+    image: produtorapi:latest
+    depends_on:
+      - rabbit    
+    ports:
+      - "5800:443"      
+      - "5700:80"
+    environment:
+      MassTransit__NomeFila: "CadastroUsuario"
+      MassTransit__Servidor: "rabbit"
+      MassTransit__Usuario: "guest"
+      MassTransit__Senha: "guest"
+      PORT: "80"
+      ASPNETCORE_HTTP_PORTS: "80"
+    networks:
+      - my_network
+
+  consumidor:
+    image: consumer:latest
+    depends_on:
+      - rabbit
+    environment:
+      MassTransit__NomeFila: "CadastroUsuario"
+      MassTransit__Servidor: "rabbit"
+      MassTransit__Usuario: "guest"
+      MassTransit__Senha: "guest"
+    networks:
+      - my_network
+
+  rabbit:
+    image: masstransit/rabbitmq:latest
+    ports:
+      - "15672:15672"
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    external: true
+    driver: bridge

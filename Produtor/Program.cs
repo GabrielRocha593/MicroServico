@@ -2,17 +2,22 @@ using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Adicione a configuração da porta aqui
+string port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+var uri = new UriBuilder("https://0.0.0.0:" + port);
+var baseAddress = uri.Uri.ToString();
+builder.Configuration["BaseAddress"] = baseAddress;
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var configuration = builder.Configuration;
-var servidor = configuration.GetSection("MassTransit")["Servidor"] ?? string.Empty;
-var Usuario = configuration.GetSection("MassTransit")["Usuario"] ?? string.Empty;
-var Senha = configuration.GetSection("MassTransit")["Senha"] ?? string.Empty;
+var servidor = Environment.GetEnvironmentVariable("MassTransit__Servidor") ?? "localhost";
+var Usuario = Environment.GetEnvironmentVariable("MassTransit__Usuario") ?? "guest";
+var Senha = Environment.GetEnvironmentVariable("MassTransit__Senha") ?? "guest";
 
 builder.Services.AddMassTransit((x =>
 {
@@ -30,12 +35,12 @@ builder.Services.AddMassTransit((x =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Minha API");
+    c.RoutePrefix = string.Empty;
+});
 
 app.UseHttpsRedirection();
 
