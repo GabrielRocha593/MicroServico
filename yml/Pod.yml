@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  restartPolicy: OnFailure
+  containers:
+    - name: produtor
+      image: gabrielsalomao/gabrielprojetospos:produtorapi
+      ports:
+        - containerPort: 80
+      env:
+        - name: MassTransit__NomeFila
+          value: "CadastroUsuario"
+        - name: MassTransit__Servidor
+          value: "localhost"
+        - name: MassTransit__Usuario
+          value: "guest"
+        - name: MassTransit__Senha
+          value: "guest"
+        - name: PORT
+          value: "80"
+        - name: ASPNETCORE_HTTP_PORTS
+          value: "80"
+    - name: consumidor
+      image: gabrielsalomao/gabrielprojetospos:consumer
+      env:
+        - name: MassTransit__NomeFila
+          value: "CadastroUsuario"
+        - name: MassTransit__Servidor
+          value: "localhost"
+        - name: MassTransit__Usuario
+          value: "guest"
+        - name: MassTransit__Senha
+          value: "guest"
+    - name: rabbit
+      image: gabrielsalomao/gabrielprojetospos:rabbitmq
+      ports:
+        - containerPort: 5672 # Porta padrão do RabbitMQ
+          name: rabbitmq-port
+        - containerPort: 15672 # Porta do painel de controle do RabbitMQ
+          name: rabbit-mgmt    
