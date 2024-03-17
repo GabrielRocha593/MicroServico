@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   produtor:
-    image: produtorapi:latest
+    image: gabrielsalomao/gabrielprojetospos:produtorapi
     depends_on:
       - rabbit    
     ports:
@@ -19,7 +19,7 @@ services:
       - my_network
 
   consumidor:
-    image: consumer:latest
+    image: gabrielsalomao/gabrielprojetospos:consumer
     depends_on:
       - rabbit
     environment:
